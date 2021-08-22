@@ -28,7 +28,7 @@ export default function (app: Application): typeof Model {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   (team as any).associate = function (models: any): void {
-    team.hasOne(models.coach)
+    team.hasOne(models.coach, {foreignKey:{allowNull: false}})
     console.log(models.team_footballer)
     team.belongsToMany(models.footballer, {through: models.team_footballer})
     models.footballer.belongsToMany(team, {through: models.team_footballer})
