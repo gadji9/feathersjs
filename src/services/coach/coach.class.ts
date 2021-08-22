@@ -2,8 +2,8 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Application } from '../../declarations';
 
 export class Coach extends Service {
-  //eslint-disable-next-line @typescript-eslint/no-unused-vars
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options);
+  async find(params: any){
+      const coaches = await super.Model.findAll()
+      return coaches
   }
 }
