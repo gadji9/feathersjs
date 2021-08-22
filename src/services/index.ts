@@ -3,6 +3,7 @@ import users from './users/users.service';
 import team from './team/team.service';
 import coach from './coach/coach.service';
 import footballer from './footballer/footballer.service';
+import teamFootballer from './team_footballer/team_footballer.service';
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default function (app: Application): void {
@@ -10,4 +11,5 @@ export default function (app: Application): void {
   app.configure(team);
   app.configure(coach);
   app.configure(footballer);
+  app.configure(teamFootballer);
 }

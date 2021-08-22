@@ -6,24 +6,14 @@ import { HookReturn } from 'sequelize/types/lib/hooks';
 
 export default function (app: Application): typeof Model {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
-  const footballer = sequelizeClient.define('footballer', {
+  const teamFootballer = sequelizeClient.define('team_footballer', {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       unique: true,
       allowNull: false,
       primaryKey: true,
-    },
-    name:{
-      type:DataTypes.STRING,
-      unique: true,
-      allowNull:false
-    },
-    surname:{
-      type:DataTypes.STRING,
-      unique: true,
-      allowNull:false
-    },
+    }
   }, {
     hooks: {
       beforeCount(options: any): HookReturn {
@@ -33,10 +23,10 @@ export default function (app: Application): typeof Model {
   });
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  (footballer as any).associate = function (models: any): void {
+  (teamFootballer as any).associate = function (models: any): void {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
   };
 
-  return footballer;
+  return teamFootballer;
 }
