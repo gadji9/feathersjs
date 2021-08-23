@@ -7,7 +7,7 @@ import app from '../../app'
 export class Team extends Service {
   async find(params:any): Promise<any>{
     console.log('team')
-    const {team} = app.get('sequelizeClient').models
+    const {team, coach, footballer} = app.get('sequelizeClient').models
     if(params.query.id){ //если в запросе есть id
       const curTeam:any = await team.findByPk(params.query.id)
       if(!curTeam){ // если не нашлась команда
@@ -22,21 +22,21 @@ export class Team extends Service {
     else{ 
       let res:any[] = []
       try {
-        const teams = await team.findAll()
-        for (const curTeam of teams) { // собираем все данные через цикл
-          let curCoach = await curTeam.getCoach()
-          let footballers
-          try {
+        const teams = await team.findAll({include: [{model: footballer},{model: coach}]})
+        // for (const curTeam of teams) { // собираем все данные через цикл
+        //   let curCoach = await curTeam.getCoach()
+        //   let footballers
+        //   try {
            
-            footballers = await curTeam.getFootballers()
-          } catch (error) {
-            res.unshift({id:curTeam.id, teamname:curTeam.name,coachname:curCoach.name, coachsurname: curCoach.surname,footballers: []})
-            continue
-          }
+        //     footballers = await curTeam.getFootballers()
+        //   } catch (error) {
+        //     res.unshift({id:curTeam.id, teamname:curTeam.name,coachname:curCoach.name, coachsurname: curCoach.surname,footballers: []})
+        //     continue
+        //   }
           
-          res.unshift({id:curTeam.id, teamname:curTeam.name,coachname:curCoach.name, coachsurname: curCoach.surname,footballers: footballers})
-        }
-        return res
+        //   res.unshift({id:curTeam.id, teamname:curTeam.name,coachname:curCoach.name, coachsurname: curCoach.surname,footballers: footballers})
+        // }
+        return teams
       } catch (error) {
         console.log(error)
       }
