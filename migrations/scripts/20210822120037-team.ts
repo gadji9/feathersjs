@@ -3,7 +3,7 @@ import { DataTypes, QueryInterface, QueryInterfaceDropAllTablesOptions } from 's
 
 module.exports = {
   up: async (queryInterface: QueryInterface, Sequelize: any) => {
-    queryInterface.createTable('coach', { id: {
+    queryInterface.createTable('team', { id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       unique: true,
@@ -18,6 +18,6 @@ module.exports = {
   },
 
   down: async (queryInterface:QueryInterface, Sequelize: any) => {
-    queryInterface.dropTable('coach')
+    queryInterface.dropTable('team')
   }
 };

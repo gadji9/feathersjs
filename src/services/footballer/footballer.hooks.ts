@@ -27,7 +27,7 @@ export default {
         const curFootballer = await footballer.create({name: context.data.name, surname: context.data.surname})
         const curTeam = await team.findByPk(context.data.teamid)
         if(!curTeam) throw new Error('Not Custom Found')
-        curTeam.addFootballer(curFootballer,{through:team_footballer })
+        curTeam.addFootballer(curFootballer,{through:{status: 'active'} })
         } catch (error) {
           console.log(error)
         }

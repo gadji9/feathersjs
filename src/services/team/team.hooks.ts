@@ -45,7 +45,7 @@ export default {
     get: [],
     create: [(context: any)=>{
       try {
-        const {team, coach} = context.data.app.get('sequelizeClient').models 
+        const {team, coach} = context.app.get('sequelizeClient').models 
       team.create({name: context.data.commandname}).then((curTeam: any)=>{
         coach.create({name: context.data.coachname, surname: context.data.coachsurname}).then((curCoach:any)=>{
           curTeam.setCoach(curCoach)
@@ -60,10 +60,25 @@ export default {
       const {team, footballer, team_footballer} = context.app.get('sequelizeClient').models
       const curTeam = await team.findByPk(context.id)
       try {
-      context.data.footballersids.forEach((ID:number)=>{
-      
-        team_footballer.create({teamId: context.id, footballerId: ID})
-      })
+        for (const ID of context.data.footballersids) {
+          const rels = await team_footballer.findAll({where: {footballerId: ID, status: 'active'}})
+          if(!rels) break
+          rels.map((rel:any)=>{
+            rel.status = 'kicked'
+            rel.save()
+          })
+            if(await team_footballer.count({where:{teamId: context.id, footballerId: ID}}) == 0)
+            {
+            team_footballer.create({teamId: context.id, footballerId: ID, status: 'active'})
+            }
+          else{
+            console.log(await team_footballer.count({where:{teamId: context.id, footballerId: ID}}))
+              team_footballer.findOne({where:{teamId: context.id, footballerId: ID}}).then((curRel:any)=>{
+                curRel.status = 'active'
+                curRel.save()
+              })
+            }
+        }
     } catch (error) {
       console.log(error)
     }
