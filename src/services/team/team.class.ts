@@ -55,6 +55,19 @@ export class Team extends Service {
     } catch (error) {
       console.log(error)
     }
-    
   }
+  async patch(id: number, data:any, params:any){ //id - id команды, а в data будет массив из айдишников футолистов
+    const {team, footballer, team_footballer} = app.get('sequelizeClient').models
+    const curTeam = await team.findByPk(id)
+    try {
+    data.footballersids.forEach((ID:number)=>{
+     
+      team_footballer.create({teamId: id, footballerId: ID})
+    })
+   } catch (error) {
+     console.log(error)
+   }
+    
+    
+   }
 }

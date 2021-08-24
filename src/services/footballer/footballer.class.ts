@@ -14,6 +14,9 @@ export class Footballer extends Service {
     } catch (error) {
       console.log(error)
     }
-    
+ }
+ async get(params:any){
+  const {team, footballer, team_footballer} = app.get('sequelizeClient').models
+   return await team.findAll()
  }
 }
