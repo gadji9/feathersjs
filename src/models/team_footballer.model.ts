@@ -13,6 +13,11 @@ export default function (app: Application): typeof Model {
       unique: true,
       allowNull: false,
       primaryKey: true,
+    },
+    status:{
+      type: DataTypes.INTEGER,
+      defaultValue: "active",
+      allowNull: false
     }
   }, {
     hooks: {
