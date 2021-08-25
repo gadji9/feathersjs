@@ -1,5 +1,6 @@
 import * as authentication from '@feathersjs/authentication';
-import { NotFound, GeneralError, BadRequest } from '@feathersjs/errors'
+import { NotFound} from '@feathersjs/errors';
+import { HookContext } from '@feathersjs/hooks';
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks;
@@ -18,76 +19,74 @@ export default {
 
   after: {
     all: [],
-    find: [async (context:any)=>{
-      console.log('team')
-    const {team, coach, footballer} = context.app.get('sequelizeClient').models
-    if(context.params.query.id){ //если в запросе есть id
-      const curTeam:any = await team.findByPk(context.params.query.id)
-      if(!curTeam){ // если не нашлась команда
-        console.log('error')
-        throw new Error("Not Found")
-    }
-      const curCoach:any = await curTeam.getCoach()
-      const footballers = await curTeam.getFootballers()
-      const res = {id:curTeam.id, teamname:curTeam.name,coachname:curCoach.name, coachsurname: curCoach.surname,footballers: footballers}
-    return res
-    }
-    else{ 
-      let res:any[] = []
-      try {
-        const teams = await team.findAll({include: [{model: footballer},{model: coach}]})
-        context.result= teams
-      } catch (error) {
-        console.log(error)
+    find: [async (context:HookContext):Promise<void>=>{
+      console.log('team');
+      const {team, coach, footballer} = context.app.get('sequelizeClient').models;
+      if(context.params.query.id){ //если в запросе есть id
+        const curTeam:any = await team.findByPk(context.params.query.id);
+        if(!curTeam){ // если не нашлась команда
+          console.log('error');
+          throw new Error('Not Found');
+        }
+        const curCoach:any = await curTeam.getCoach();
+        const footballers = await curTeam.getFootballers();
+        const res = {id:curTeam.id, teamname:curTeam.name,coachname:curCoach.name, coachsurname: curCoach.surname,footballers: footballers};
+        context.result = res;
       }
-    }
+      else{ 
+        try {
+          const teams = await team.findAll({include: [{model: footballer},{model: coach}]});
+          context.result= teams;
+        } catch (error) {
+          console.log(error);
+        }
+      }
     }],
     get: [],
-    create: [(context: any)=>{
+    create: [(context: HookContext):void=>{
       try {
-        const {team, coach} = context.app.get('sequelizeClient').models 
-      team.create({name: context.data.commandname}).then((curTeam: any)=>{
-        coach.create({name: context.data.coachname, surname: context.data.coachsurname}).then((curCoach:any)=>{
-          curTeam.setCoach(curCoach)
-        })
-      })
+        const {team, coach} = context.app.get('sequelizeClient').models; 
+        team.create({name: context.data.commandname}).then((curTeam: any)=>{
+          coach.create({name: context.data.coachname, surname: context.data.coachsurname}).then((curCoach:any)=>{
+            curTeam.setCoach(curCoach);
+          });
+        });
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     }],
     update: [],
-    patch: [async (context:any)=>{
-      const {team, footballer, team_footballer} = context.app.get('sequelizeClient').models
-      const curTeam = await team.findByPk(context.id)
+    patch: [async (context:HookContext):Promise<void>=>{
+      const {team_footballer} = context.app.get('sequelizeClient').models;
       try {
         for (const ID of context.data.footballersids) {
-          const rels = await team_footballer.findAll({where: {footballerId: ID, status: 'active'}})
-          if(!rels) break
+          const rels = await team_footballer.findAll({where: {footballerId: ID, status: 'active'}});
+          if(!rels) break;
           rels.map((rel:any)=>{
-            rel.status = 'kicked'
-            rel.save()
-          })
-            if(await team_footballer.count({where:{teamId: context.id, footballerId: ID}}) == 0)
-            {
-            team_footballer.create({teamId: context.id, footballerId: ID, status: 'active'})
-            }
+            rel.status = 'kicked';
+            rel.save();
+          });
+          if(await team_footballer.count({where:{teamId: context.id, footballerId: ID}}) == 0)
+          {
+            team_footballer.create({teamId: context.id, footballerId: ID, status: 'active'});
+          }
           else{
-            console.log(await team_footballer.count({where:{teamId: context.id, footballerId: ID}}))
-              team_footballer.findOne({where:{teamId: context.id, footballerId: ID}}).then((curRel:any)=>{
-                curRel.status = 'active'
-                curRel.save()
-              })
-            }
+            console.log(await team_footballer.count({where:{teamId: context.id, footballerId: ID}}));
+            team_footballer.findOne({where:{teamId: context.id, footballerId: ID}}).then((curRel:any)=>{
+              curRel.status = 'active';
+              curRel.save();
+            });
+          }
         }
-    } catch (error) {
-      console.log(error)
-    }
-  }],
+      } catch (error) {
+        console.log(error);
+      }
+    }],
     remove: []
   },
 
   error: {
-    all: [(context:any)=>{
+    all: [(context:HookContext): any=>{
       if(context.error) {
         throw new NotFound('Not Found');
       }

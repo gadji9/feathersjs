@@ -2,7 +2,6 @@ import { Sequelize } from 'sequelize';
 import { Application } from './declarations';
 
 export default function (app: Application): void {
-  const connectionString = app.get('postgres');
   const sequelize = new Sequelize('test', 'postgres', 'gm357753', {
     dialect: 'postgres',
     port: 5432,
