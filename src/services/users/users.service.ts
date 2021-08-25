@@ -17,7 +17,7 @@ export default function (app: Application): void {
     Model: createModel(app),
     paginate: app.get('paginate')
   };
-  console.log(options)
+  console.log(options);
   // Initialize our service with any options it requires
   app.use('/users', new Users(options, app));
 

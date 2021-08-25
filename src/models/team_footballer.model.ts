@@ -16,7 +16,7 @@ export default function (app: Application): typeof Model {
     },
     status:{
       type: DataTypes.INTEGER,
-      defaultValue: "active",
+      defaultValue: 'active',
       allowNull: false
     }
   }, {
