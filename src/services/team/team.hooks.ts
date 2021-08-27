@@ -16,10 +16,9 @@ export default {
     patch: [],
     remove: []
   },
-
   after: {
     all: [],
-    find: [async (context:HookContext):Promise<void>=>{
+    find: [async (context:any):Promise<void>=>{
       console.log('team');
       const {team, coach, footballer} = context.app.get('sequelizeClient').models;
       if(context.params.query.id){ //если в запросе есть id
@@ -43,7 +42,7 @@ export default {
       }
     }],
     get: [],
-    create: [(context: HookContext):void=>{
+    create: [(context: any):void=>{
       try {
         const {team, coach} = context.app.get('sequelizeClient').models; 
         team.create({name: context.data.commandname}).then((curTeam: any)=>{
@@ -56,7 +55,7 @@ export default {
       }
     }],
     update: [],
-    patch: [async (context:HookContext):Promise<void>=>{
+    patch: [async (context:any):Promise<void>=>{
       const {team_footballer} = context.app.get('sequelizeClient').models;
       try {
         for (const ID of context.data.footballersids) {
@@ -84,9 +83,8 @@ export default {
     }],
     remove: []
   },
-
   error: {
-    all: [(context:HookContext): any=>{
+    all: [(context:any): any=>{
       if(context.error) {
         throw new NotFound('Not Found');
       }
