@@ -1,6 +1,7 @@
 import * as authentication from '@feathersjs/authentication';
 import { NotFound} from '@feathersjs/errors';
 import { HookContext } from '@feathersjs/hooks';
+import basehookscript from '../custom/basehookscript';
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks;
@@ -13,9 +14,13 @@ export default {
     create: [
     ],
     update: [],
-    patch: [],
+    patch: [async(context:any)=>{
+      context.data.model = context.app.get('sequelizeClient').models;
+      context.data.array = context.data.footballersids
+    }],
     remove: []
   },
+
   after: {
     all: [],
     find: [async (context:any):Promise<void>=>{
@@ -56,33 +61,13 @@ export default {
     }],
     update: [],
     patch: [async (context:any):Promise<void>=>{
-      const {team_footballer} = context.app.get('sequelizeClient').models;
-      try {
-        for (const ID of context.data.footballersids) {
-          const rels = await team_footballer.findAll({where: {footballerId: ID, status: 'active'}});
-          if(!rels) break;
-          rels.map((rel:any)=>{
-            rel.status = 'kicked';
-            rel.save();
-          });
-          if(await team_footballer.count({where:{teamId: context.id, footballerId: ID}}) == 0)
-          {
-            team_footballer.create({teamId: context.id, footballerId: ID, status: 'active'});
-          }
-          else{
-            console.log(await team_footballer.count({where:{teamId: context.id, footballerId: ID}}));
-            team_footballer.findOne({where:{teamId: context.id, footballerId: ID}}).then((curRel:any)=>{
-              curRel.status = 'active';
-              curRel.save();
-            });
-          }
-        }
-      } catch (error) {
-        console.log(error);
-      }
+      basehookscript(context,(ID:number)=>{
+        return {teamId: context.id, footballerId: ID, status: 'active'}
+      })
     }],
     remove: []
   },
+
   error: {
     all: [(context:any): any=>{
       if(context.error) {
